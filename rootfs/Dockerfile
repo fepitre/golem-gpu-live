@@ -14,6 +14,8 @@ RUN bash -c "echo deb ${APT_REPO} jammy main > /etc/apt/sources.list.d/golem.lis
 # Accept GOLEM terms for install then Wizard will manage it
 RUN bash -c 'echo golem golem/terms/subsidy-01 string yes | debconf-set-selections'
 
+COPY local/ /tmp/local/
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     linux-image-generic \
     live-boot \
@@ -60,7 +62,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     golem-nvidia-kernel \
     ya-runtime-vm-nvidia \
     ya-runtime-wasi-cli \
-    ya-installer-resources && apt-get clean
+    ya-installer-resources
+
+RUN cd /tmp/local && apt-get install -y ./golem-nvidia-kernel_6.1.97-1_amd64.deb ./ya-runtime-vm-nvidia_pre-rel-v0.1.4-rc1.deb ./ya-runtime-vm_pre-rel-v0.4.0-ITL-rc25_amd64.deb  && apt-get clean
 
 # Blacklist 'nouveau'.
 COPY vfio.conf /etc/modprobe.d/
